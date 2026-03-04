@@ -18,7 +18,9 @@ class BoardLayout extends StatelessWidget {
   final int? bombAnimationCol;
   final bool locked;
   final double gap;
+  final bool emphasizeConstraints;
   final void Function(int row, int col) onTileTap;
+  final void Function(int row, int col) onTileLongPress;
 
   const BoardLayout({
     super.key,
@@ -33,7 +35,9 @@ class BoardLayout extends StatelessWidget {
     required this.bombAnimationCol,
     required this.locked,
     required this.gap,
+    required this.emphasizeConstraints,
     required this.onTileTap,
+    required this.onTileLongPress,
   });
 
   @override
@@ -59,6 +63,7 @@ class BoardLayout extends StatelessWidget {
                   locked: locked,
                   gap: gap,
                   onTileTap: onTileTap,
+                  onTileLongPress: onTileLongPress,
                 ),
               ),
               SizedBox(width: gap),
@@ -68,6 +73,7 @@ class BoardLayout extends StatelessWidget {
                   board: board,
                   rowStates: rowStates,
                   focusedRow: focusedRow,
+                  emphasizeAll: emphasizeConstraints,
                   gap: gap,
                 ),
               ),
@@ -85,6 +91,7 @@ class BoardLayout extends StatelessWidget {
                   board: board,
                   colStates: colStates,
                   focusedCol: focusedCol,
+                  emphasizeAll: emphasizeConstraints,
                   gap: gap,
                 ),
               ),

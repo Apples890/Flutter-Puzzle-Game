@@ -35,13 +35,20 @@ class GameHeader extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 8),
-              Text(
-                '$score',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 28,
-                  fontWeight: FontWeight.w800,
-                ),
+              TweenAnimationBuilder<double>(
+                tween: Tween<double>(end: score.toDouble()),
+                duration: const Duration(milliseconds: 260),
+                curve: Curves.easeOutCubic,
+                builder: (context, value, _) {
+                  return Text(
+                    value.round().toString(),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 28,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  );
+                },
               ),
             ],
           ),

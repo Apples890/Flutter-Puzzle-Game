@@ -8,6 +8,7 @@ class ColumnConstraintRow extends StatelessWidget {
   final GameBoard board;
   final List<LineSnapshot> colStates;
   final int? focusedCol;
+  final bool emphasizeAll;
   final double gap;
 
   const ColumnConstraintRow({
@@ -15,6 +16,7 @@ class ColumnConstraintRow extends StatelessWidget {
     required this.board,
     required this.colStates,
     required this.focusedCol,
+    required this.emphasizeAll,
     required this.gap,
   });
 
@@ -28,7 +30,7 @@ class ColumnConstraintRow extends StatelessWidget {
             sumValue: board.colSums[col],
             bombValue: board.colBombCounts[col],
             highlighted: focusedCol == col,
-            completed: colStates[col].isComplete,
+            completed: colStates[col].isComplete || emphasizeAll,
           ),
         ),
       );

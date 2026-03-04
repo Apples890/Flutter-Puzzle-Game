@@ -17,7 +17,9 @@ class BoardContainer extends StatelessWidget {
   final int? bombAnimationRow;
   final int? bombAnimationCol;
   final bool locked;
+  final bool emphasizeConstraints;
   final void Function(int row, int col) onTileTap;
+  final void Function(int row, int col) onTileLongPress;
 
   const BoardContainer({
     super.key,
@@ -31,7 +33,9 @@ class BoardContainer extends StatelessWidget {
     required this.bombAnimationRow,
     required this.bombAnimationCol,
     required this.locked,
+    required this.emphasizeConstraints,
     required this.onTileTap,
+    required this.onTileLongPress,
   });
 
   @override
@@ -55,8 +59,10 @@ class BoardContainer extends StatelessWidget {
               bombAnimationRow: bombAnimationRow,
               bombAnimationCol: bombAnimationCol,
               locked: locked,
+              emphasizeConstraints: emphasizeConstraints,
               gap: gap,
               onTileTap: onTileTap,
+              onTileLongPress: onTileLongPress,
             ),
           ),
         );

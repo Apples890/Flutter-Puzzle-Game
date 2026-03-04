@@ -7,6 +7,7 @@ import '../../../models/cell.dart';
 class TileWidget extends StatefulWidget {
   final Cell cell;
   final VoidCallback? onTap;
+  final VoidCallback? onLongPress;
   final bool highlighted;
   final bool dimmed;
   final bool completedLine;
@@ -16,6 +17,7 @@ class TileWidget extends StatefulWidget {
     super.key,
     required this.cell,
     required this.onTap,
+    required this.onLongPress,
     required this.highlighted,
     required this.dimmed,
     required this.completedLine,
@@ -76,6 +78,12 @@ class _TileWidgetState extends State<TileWidget>
             scale: _pressed ? 0.96 : 1.0,
             child: GestureDetector(
               onTap: widget.onTap,
+              onLongPress: widget.onLongPress == null
+                  ? null
+                  : () {
+                      setState(() => _pressed = false);
+                      widget.onLongPress?.call();
+                    },
               onTapDown: widget.onTap == null
                   ? null
                   : (_) => setState(() => _pressed = true),
@@ -143,16 +151,19 @@ class _TileWidgetState extends State<TileWidget>
   }
 
   Widget _buildHiddenFace() {
+    final isFlagged = widget.cell.visibility == CellVisibility.flagged;
     final borderColor =
-        widget.highlighted ? const Color(0xFF7CA9E6) : const Color(0xFFC6D8F0);
+        isFlagged ? const Color(0xFFF0C671) : widget.highlighted ? const Color(0xFF7CA9E6) : const Color(0xFFC6D8F0);
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 180),
       curve: Curves.easeOut,
       decoration: BoxDecoration(
-        color: widget.highlighted
-            ? const Color(0xFFDCEAFF)
-            : const Color(0xFFE9F1FF),
+        color: isFlagged
+            ? const Color(0xFFF6EED9)
+            : widget.highlighted
+                ? const Color(0xFFDCEAFF)
+                : const Color(0xFFE9F1FF),
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: borderColor, width: 1.4),
         boxShadow: [
@@ -163,7 +174,21 @@ class _TileWidgetState extends State<TileWidget>
           ),
         ],
       ),
-      child: const SizedBox.expand(),
+      child: Stack(
+        children: [
+          const SizedBox.expand(),
+          if (isFlagged)
+            const Positioned(
+              top: 6,
+              right: 6,
+              child: Icon(
+                Icons.flag_outlined,
+                size: 14,
+                color: Color(0xFFB98C2E),
+              ),
+            ),
+        ],
+      ),
     );
   }
 

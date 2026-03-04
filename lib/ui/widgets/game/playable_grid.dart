@@ -18,6 +18,7 @@ class PlayableGrid extends StatelessWidget {
   final bool locked;
   final double gap;
   final void Function(int row, int col) onTileTap;
+  final void Function(int row, int col) onTileLongPress;
 
   const PlayableGrid({
     super.key,
@@ -33,6 +34,7 @@ class PlayableGrid extends StatelessWidget {
     required this.locked,
     required this.gap,
     required this.onTileTap,
+    required this.onTileLongPress,
   });
 
   @override
@@ -57,6 +59,7 @@ class PlayableGrid extends StatelessWidget {
               key: ValueKey('tile-$boardVersion-$row-$col'),
               cell: cell,
               onTap: locked ? null : () => onTileTap(row, col),
+              onLongPress: locked ? null : () => onTileLongPress(row, col),
               highlighted: isHighlighted,
               dimmed: isDimmed,
               completedLine: isLineComplete,
