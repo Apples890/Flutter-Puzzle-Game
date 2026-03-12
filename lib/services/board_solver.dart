@@ -1,29 +1,33 @@
 import '../models/game_board.dart';
 
 class BoardSolver {
-  static int countSolutions(
-    GameBoard board, {
-    int maxSolutions = 2,
-  }) {
-    final size = board.size;
+  static int countSolutions(GameBoard board, {int maxSolutions = 2}) {
+    final workingBoard = board.clone();
+    final size = workingBoard.size;
     final rowBombUsed = List.filled(size, 0);
     final colBombUsed = List.filled(size, 0);
     final rowSafeSumUsed = List.filled(size, 0);
     final colSafeSumUsed = List.filled(size, 0);
 
-    final rowRemainingValues = List.generate(size, (_) => List.filled(size + 1, 0));
-    final colRemainingValues = List.generate(size, (_) => List.filled(size + 1, 0));
+    final rowRemainingValues = List.generate(
+      size,
+      (_) => List.filled(size + 1, 0),
+    );
+    final colRemainingValues = List.generate(
+      size,
+      (_) => List.filled(size + 1, 0),
+    );
 
     for (int r = 0; r < size; r++) {
       for (int c = size - 1; c >= 0; c--) {
         rowRemainingValues[r][c] =
-            rowRemainingValues[r][c + 1] + board.grid[r][c].value;
+            rowRemainingValues[r][c + 1] + workingBoard.grid[r][c].value;
       }
     }
     for (int c = 0; c < size; c++) {
       for (int r = size - 1; r >= 0; r--) {
         colRemainingValues[c][r] =
-            colRemainingValues[c][r + 1] + board.grid[r][c].value;
+            colRemainingValues[c][r + 1] + workingBoard.grid[r][c].value;
       }
     }
 
@@ -37,10 +41,10 @@ class BoardSolver {
       required int rowSafe,
       required int colSafe,
     }) {
-      final rowBombTarget = board.rowBombCounts[r];
-      final colBombTarget = board.colBombCounts[c];
-      final rowSumTarget = board.rowSums[r];
-      final colSumTarget = board.colSums[c];
+      final rowBombTarget = workingBoard.rowBombCounts[r];
+      final colBombTarget = workingBoard.colBombCounts[c];
+      final rowSumTarget = workingBoard.rowSums[r];
+      final colSumTarget = workingBoard.colSums[c];
 
       final rowCellsLeft = size - c - 1;
       final colCellsLeft = size - r - 1;
@@ -74,7 +78,7 @@ class BoardSolver {
 
       final r = index ~/ size;
       final c = index % size;
-      final value = board.grid[r][c].value;
+      final value = workingBoard.grid[r][c].value;
 
       final bombRow = rowBombUsed[r] + 1;
       final bombCol = colBombUsed[c] + 1;

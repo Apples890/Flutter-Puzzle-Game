@@ -1,11 +1,13 @@
 import 'dart:async';
 import 'dart:math' as math;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../services/game_session_service.dart';
 import '../../services/stats_service.dart';
+import '../../services/board_integrity_tools.dart';
 import '../widgets/game/board_container.dart';
 import '../widgets/game/game_header.dart';
 
@@ -154,6 +156,13 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     _winGlowController.value = 0;
   }
 
+  void _debugRevealBoard() {
+    setState(() {
+      revealEntireBoard(_session.board);
+    });
+    printBoard(_session.board);
+  }
+
   @override
   Widget build(BuildContext context) {
     final rowStates = List.generate(_session.board.size, _session.rowSnapshot);
@@ -176,6 +185,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                 GameHeader(
                   score: _session.points,
                   onReset: _resetRun,
+                  onDebugReveal: kDebugMode ? _debugRevealBoard : null,
                 ),
                 const SizedBox(height: 16),
                 Align(
@@ -190,17 +200,15 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                         _session.levelComplete
                             ? 'Layer Cleared'
                             : _session.gameOver
-                                ? 'System Failed'
-                                : 'Deduce',
+                            ? 'System Failed'
+                            : 'Deduce',
                         accent: _session.levelComplete || _session.gameOver,
                       ),
                     ],
                   ),
                 ),
                 const SizedBox(height: 16),
-                Expanded(
-                  child: _buildBoardRegion(rowStates, colStates),
-                ),
+                Expanded(child: _buildBoardRegion(rowStates, colStates)),
                 const SizedBox(height: 16),
                 _buildFooterAction(),
               ],
@@ -219,14 +227,19 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       children: [
         Positioned.fill(
           child: AnimatedBuilder(
-            animation: Listenable.merge([_loseShakeController, _winGlowController]),
+            animation: Listenable.merge([
+              _loseShakeController,
+              _winGlowController,
+            ]),
             builder: (context, _) {
               final shakeT = _loseShakeController.value;
               final shakeX = math.sin(shakeT * math.pi * 7) * (1 - shakeT) * 10;
               final glowT = _winGlowController.value;
               final double glowPulse =
                   (math.sin(glowT * math.pi)).clamp(0.0, 1.0).toDouble();
-              final glowColor = const Color(0x8847C08B).withOpacity(glowPulse * 0.6);
+              final glowColor = const Color(
+                0x8847C08B,
+              ).withOpacity(glowPulse * 0.6);
 
               return Transform.translate(
                 offset: Offset(shakeX, 0),
@@ -274,7 +287,8 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
           Center(
             child: _BoardStatusOverlay(
               title: _session.gameOver ? 'System Failed' : 'Layer Cleared',
-              subtitle: _session.levelComplete ? 'Security Node Deactivated' : null,
+              subtitle:
+                  _session.levelComplete ? 'Security Node Deactivated' : null,
             ),
           ),
       ],
@@ -344,10 +358,7 @@ class _BoardStatusOverlay extends StatelessWidget {
   final String title;
   final String? subtitle;
 
-  const _BoardStatusOverlay({
-    required this.title,
-    this.subtitle,
-  });
+  const _BoardStatusOverlay({required this.title, this.subtitle});
 
   @override
   Widget build(BuildContext context) {

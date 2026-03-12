@@ -2,32 +2,26 @@ import 'dart:math';
 
 import '../models/cell.dart';
 import '../models/game_board.dart';
-import '../models/level_config.dart';
+import 'board_integrity_tools.dart';
 import 'board_solver.dart';
 import 'level_curve_service.dart';
 
 class BoardGenerator {
   static GameBoard generate(int size, int bombCount, int minVal, int maxVal) {
     final random = Random();
-    final board = GameBoard(size: size);
+    GameBoard board;
 
-    final values = List.generate(
-      size,
-      (_) => List.generate(size, (_) => minVal + random.nextInt(maxVal - minVal + 1)),
-    );
+    do {
+      board = _generateClassicCandidate(
+        size: size,
+        bombCount: bombCount,
+        minVal: minVal,
+        maxVal: maxVal,
+        random: random,
+      );
+    } while (!validateBoardIntegrity(board));
 
-    final isBomb = List.generate(size, (_) => List.filled(size, false));
-    int bombsPlaced = 0;
-    while (bombsPlaced < bombCount) {
-      final r = random.nextInt(size);
-      final c = random.nextInt(size);
-      if (!isBomb[r][c]) {
-        isBomb[r][c] = true;
-        bombsPlaced++;
-      }
-    }
-
-    _populateBoard(board, values, isBomb);
+    assert(validateBoardIntegrity(board));
     return board;
   }
 
@@ -77,16 +71,51 @@ class BoardGenerator {
       _populateBoard(board, values, isBomb);
 
       if (_rowSumExceeded(board, config.maxRowSum)) continue;
+      if (!validateBoardIntegrity(board)) continue;
       if (BoardSolver.countSolutions(board, maxSolutions: 2) != 1) continue;
 
+      assert(validateBoardIntegrity(board));
       return board;
     }
 
-    throw StateError('Unable to generate uniquely solvable board for level $level');
+    throw StateError(
+      'Unable to generate uniquely solvable board for level $level',
+    );
   }
 
   static int _randInRange(Random random, int min, int max) {
     return min + random.nextInt(max - min + 1);
+  }
+
+  static GameBoard _generateClassicCandidate({
+    required int size,
+    required int bombCount,
+    required int minVal,
+    required int maxVal,
+    required Random random,
+  }) {
+    final board = GameBoard(size: size);
+    final values = List.generate(
+      size,
+      (_) => List.generate(
+        size,
+        (_) => minVal + random.nextInt(maxVal - minVal + 1),
+      ),
+    );
+
+    final isBomb = List.generate(size, (_) => List.filled(size, false));
+    int bombsPlaced = 0;
+    while (bombsPlaced < bombCount) {
+      final r = random.nextInt(size);
+      final c = random.nextInt(size);
+      if (!isBomb[r][c]) {
+        isBomb[r][c] = true;
+        bombsPlaced++;
+      }
+    }
+
+    _populateBoard(board, values, isBomb);
+    return board;
   }
 
   static void _populateBoard(
@@ -97,10 +126,7 @@ class BoardGenerator {
     final size = board.size;
     board.grid = List.generate(size, (r) {
       return List.generate(size, (c) {
-        return Cell(
-          isBomb: isBomb[r][c],
-          value: values[r][c],
-        );
+        return Cell(isBomb: isBomb[r][c], value: values[r][c]);
       });
     });
 

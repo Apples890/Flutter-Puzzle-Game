@@ -1,4 +1,3 @@
-
 enum CellVisibility { hidden, revealed, flagged }
 
 class Cell {
@@ -11,4 +10,8 @@ class Cell {
     required this.value,
     this.visibility = CellVisibility.hidden,
   });
+
+  Cell clone() {
+    return Cell(isBomb: isBomb, value: value, visibility: visibility);
+  }
 }

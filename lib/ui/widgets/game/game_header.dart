@@ -3,11 +3,13 @@ import 'package:flutter/material.dart';
 class GameHeader extends StatelessWidget {
   final int score;
   final VoidCallback onReset;
+  final VoidCallback? onDebugReveal;
 
   const GameHeader({
     super.key,
     required this.score,
     required this.onReset,
+    this.onDebugReveal,
   });
 
   @override
@@ -54,26 +56,45 @@ class GameHeader extends StatelessWidget {
           ),
         ),
         const Expanded(
-          child: Center(
-            child: Text(
-              'Logic Bomb',
-              style: titleStyle,
-            ),
-          ),
+          child: Center(child: Text('Logic Bomb', style: titleStyle)),
         ),
         Expanded(
           child: Align(
             alignment: Alignment.centerRight,
-            child: Container(
-              decoration: BoxDecoration(
-                color: const Color(0x1FFFFFFF),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: IconButton(
-                onPressed: onReset,
-                icon: const Icon(Icons.restart_alt_rounded, color: Colors.white),
-                tooltip: 'Reset run',
-              ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (onDebugReveal != null)
+                  Container(
+                    decoration: BoxDecoration(
+                      color: const Color(0x1FFFFFFF),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: IconButton(
+                      onPressed: onDebugReveal,
+                      icon: const Icon(
+                        Icons.bug_report_rounded,
+                        color: Colors.white,
+                      ),
+                      tooltip: 'Debug reveal',
+                    ),
+                  ),
+                const SizedBox(width: 8),
+                Container(
+                  decoration: BoxDecoration(
+                    color: const Color(0x1FFFFFFF),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: IconButton(
+                    onPressed: onReset,
+                    icon: const Icon(
+                      Icons.restart_alt_rounded,
+                      color: Colors.white,
+                    ),
+                    tooltip: 'Reset run',
+                  ),
+                ),
+              ],
             ),
           ),
         ),
